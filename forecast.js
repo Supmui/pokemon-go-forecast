@@ -17,6 +17,10 @@ let translatedWeather = [];
 let currentHour = -1;
 let keyCounter = 0;
 
+const nianticFetchingHours = [2, 17];
+const extraFetchingHours = [3, 4, 5, 6, 7];
+const fetchingHours = nianticFetchingHours.concat(extraFetchingHours);
+
 function fetchWeather(locationId) {
   try {
     let url = BASE_URL + locationId + '?apikey=' + apikeys[keyCounter] + '&details=true';
@@ -40,9 +44,6 @@ function fetchWeather(locationId) {
   }
 }
 
-const nianticFetchingHours = [2, 17];
-const extraFetchingHours = [3, 4, 5, 6, 7];
-const fetchingHours = nianticFetchingHours.concat(extraFetchingHours);
 function isHourToCheck(hour) {
   return fetchingHours.includes(hour);
 }
@@ -78,7 +79,7 @@ function logMessage(hour, message) {
 var recordWeather = function() {
   let date = new Date();
   let offset = date.getTimezoneOffset() / 60;
-  let hour = date.getHours() + offset + 7;
+  let hour = (date.getHours() + offset + 7) % 24;
 
   if (currentHour !== hour && date.getMinutes() > 0) {
     currentHour = hour;
@@ -91,7 +92,7 @@ var recordWeather = function() {
         let newWeather = fetchWeather(id);
         if (!newWeather) {
           currentHour = -1;
-          return;
+          continue;
         }
 
         if (nianticFetchingHours.includes(hour)) {
