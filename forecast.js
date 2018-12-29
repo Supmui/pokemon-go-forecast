@@ -1,4 +1,3 @@
-console.log(process.env.API_KEYS);
 const locations = require('./resources/locations');
 const weatherMap = require('./resources/weather-map');
 const types = require('./resources/types-map');
