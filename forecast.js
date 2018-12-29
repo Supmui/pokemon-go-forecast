@@ -1,7 +1,7 @@
 const locations = require('./resources/locations');
 const weatherMap = require('./resources/weather-map');
 const types = require('./resources/types-map');
-const apiKeys = require('./resources/api-keys');
+// const apiKeys = require('./resources/api-keys');
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 const fs = require('fs');
 
@@ -27,8 +27,9 @@ function readLocalFile(url) {
 
 function fetchWeather(locationId) {
   try {
-    let url = BASE_URL + locationId + '?apikey=' + apiKeys[keyCounter] + '&details=true';
-    keyCounter = (keyCounter + 1) % apiKeys.length;
+    const apikeys = JSON.parse(process.env.ENV_VARIABLE);
+    let url = BASE_URL + locationId + '?apikey=' + apikeys[keyCounter] + '&details=true';
+    keyCounter = (keyCounter + 1) % apikeys.length;
     let xhttp = new XMLHttpRequest();
     let jsonOutput;
 
