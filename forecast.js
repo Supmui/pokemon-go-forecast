@@ -2,7 +2,6 @@ const locations = require('./resources/locations');
 const weatherMap = require('./resources/weather-map');
 const types = require('./resources/types-map');
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-// const fs = require('fs');
 
 const weatherWithWind = weatherMap.weatherMapWithWind;
 const weatherWithoutWind = weatherMap.weatherMapWithoutWind;
@@ -10,23 +9,13 @@ const WINDY = weatherMap.WINDY;
 
 const BASE_URL = 'http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/';
 const ONE_MINUTE = 1000 * 60;
-// const RAW_PATH = './raw_weather/';
-// const TRANSLATED_PATH = './translated_weather/';
 const apikeys = JSON.parse(process.env.API_KEYS || '["test"]');
 
 const rawWeather = {};
-let translatedWeather = {};
+let translatedWeather = [];
 
 let currentHour = -1;
 let keyCounter = 0;
-
-// function readLocalFile(url) {
-//   try {
-//     return fs.readFileSync(url).toString();
-//   } catch (err) {
-//     return '[]';
-//   }
-// }
 
 function fetchWeather(locationId) {
   try {
@@ -63,14 +52,6 @@ function extractTime(weatherData) {
   return { time, data: weatherData };
 }
 
-function getFileName(id) {
-  return 'weather_' + id + '.json';
-}
-
-// function writeToFile(fileName, string) {
-//   fs.writeFileSync(fileName, string);
-// }
-
 function translateWeather(data) {
   const iconPhrase = data.IconPhrase;
   if (weatherWithWind[iconPhrase]) {
@@ -106,10 +87,9 @@ var recordWeather = function() {
 
       let outputData = [];
       for (const id in locations) {
-        const fileName = getFileName(id);
-        let currentData = rawWeather[id] || []; //JSON.parse(readLocalFile(RAW_PATH + fileName));
+        let currentData = rawWeather[id] || [];
         let newWeather = fetchWeather(id);
-        if (newWeather === null) {
+        if (!newWeather) {
           currentHour = -1;
           return;
         }
@@ -127,7 +107,6 @@ var recordWeather = function() {
           } else currentData[time] = data;
         }
 
-        // writeToFile(RAW_PATH + fileName, JSON.stringify(currentData));
         rawWeather[id] = currentData;
         const translatedData = translateRawData(currentData);
         for (const time in translatedData) {
@@ -145,14 +124,13 @@ var recordWeather = function() {
         }
       }
 
-      // writeToFile(TRANSLATED_PATH + 'weather.json', JSON.stringify(outputData));
       translatedWeather = outputData;
       console.log(logMessage(hour, 'data recorded'));
       console.log();
     } else {
       console.log(logMessage(hour, 'update records'));
 
-      const records = translatedWeather || []; //JSON.parse(readLocalFile(TRANSLATED_PATH + 'weather.json'));
+      const records = translatedWeather || [];
       let currentOrder;
       for (const record of records) {
         if (hour === record.time) {
@@ -165,7 +143,6 @@ var recordWeather = function() {
         if (record.order < currentOrder) record.weather = null;
       }
 
-      // writeToFile(TRANSLATED_PATH + 'weather.json', JSON.stringify(records));
       translatedWeather = records;
       console.log(logMessage(hour, 'records updated'));
       console.log();
@@ -174,12 +151,8 @@ var recordWeather = function() {
 };
 
 (function main() {
-  // const INITIAL_WEATHER_DATA = JSON.stringify(new Array(24).fill(null));
-  const INITIAL_WEATHER_DATA = new Array(24).fill(null);
   for (const id in locations) {
-    // const fileName = getFileName(id);
-    // writeToFile(RAW_PATH + fileName, INITIAL_WEATHER_DATA);
-    rawWeather[id] = INITIAL_WEATHER_DATA;
+    rawWeather[id] = new Array(24).fill(null);
   }
 
   recordWeather();
@@ -189,7 +162,6 @@ var recordWeather = function() {
   http
     .createServer((req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      // res.write(readLocalFile(TRANSLATED_PATH + 'weather.json'));
       res.write(JSON.stringify(translatedWeather));
       res.end();
     })
