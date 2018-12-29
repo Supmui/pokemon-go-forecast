@@ -161,7 +161,10 @@ var recordWeather = function() {
   const http = require('http');
   http
     .createServer((req, res) => {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      });
       res.write(JSON.stringify(translatedWeather));
       res.end();
     })
