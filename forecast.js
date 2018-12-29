@@ -167,11 +167,22 @@ var recordWeather = function() {
   }
 };
 
-const INITIAL_WEATHER_DATA = JSON.stringify(new Array(24).fill(null));
-for (const id in locations) {
-  const fileName = getFileName(id);
-  writeToFile(RAW_PATH + fileName, INITIAL_WEATHER_DATA);
-}
+(function main() {
+  const INITIAL_WEATHER_DATA = JSON.stringify(new Array(24).fill(null));
+  for (const id in locations) {
+    const fileName = getFileName(id);
+    writeToFile(RAW_PATH + fileName, INITIAL_WEATHER_DATA);
+  }
 
-recordWeather();
-setInterval(recordWeather, ONE_MINUTE);
+  recordWeather();
+  setInterval(recordWeather, ONE_MINUTE);
+
+  const http = require('http');
+  http
+    .createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.write(readLocalFile(TRANSLATED_PATH + 'weather.json'));
+      res.end();
+    })
+    .listen(process.env.PORT || 80);
+})();
