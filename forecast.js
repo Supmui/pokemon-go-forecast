@@ -12,7 +12,7 @@ const BASE_URL = 'http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/
 const ONE_MINUTE = 1000 * 60;
 const RAW_PATH = './raw_weather/';
 const TRANSLATED_PATH = './translated_weather/';
-const apikeys = JSON.parse(process.env.API_KEYS);
+const apikeys = JSON.parse(process.env.API_KEYS || []);
 
 let currentHour = -1;
 let keyCounter = 0;
