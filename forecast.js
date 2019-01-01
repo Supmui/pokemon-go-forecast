@@ -158,6 +158,7 @@ function handleHTTPRequest(req, res, startDate) {
       'Access-Control-Allow-Origin': '*',
     });
     res.write(startDate.toString());
+    console.log(startDate.toString());
   } else {
     res.writeHead(200, {
       'Content-Type': 'application/json',
