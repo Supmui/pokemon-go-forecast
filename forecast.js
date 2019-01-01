@@ -151,23 +151,35 @@ var recordWeather = function() {
   }
 };
 
+function handleHTTPRequest(req, res, startDate) {
+  if (req.url === '/startdate') {
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin': '*',
+    });
+    res.write(startDate.toString());
+  } else {
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    });
+    res.write(JSON.stringify(translatedWeather));
+  }
+
+  res.end();
+}
+
 (function main() {
   for (const id in locations) {
     rawWeather[id] = new Array(24).fill(null);
   }
 
+  const startDate = new Date();
   recordWeather();
   setInterval(recordWeather, ONE_MINUTE);
 
   const http = require('http');
   http
-    .createServer((req, res) => {
-      res.writeHead(200, {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      });
-      res.write(JSON.stringify(translatedWeather));
-      res.end();
-    })
+    .createServer((req, res) => handleHTTPRequest(req, res, startDate))
     .listen(process.env.PORT || 80);
 })();
