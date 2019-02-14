@@ -19,6 +19,7 @@
     "prettier": "^1.14.2"
   },
   "dependencies": {
-    "xmlhttprequest": "^1.8.0"
+    "xmlhttprequest": "^1.8.0",
+    "pg": "^7.7.1"
   }
 }
