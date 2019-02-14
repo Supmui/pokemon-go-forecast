@@ -2,6 +2,8 @@ const locations = require('./resources/locations');
 const weatherMap = require('./resources/weather-map');
 const types = require('./resources/types-map');
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+const { Client } = require("pg");
+
 
 const weatherWithWind = weatherMap.weatherMapWithWind;
 const weatherWithoutWind = weatherMap.weatherMapWithoutWind;
@@ -15,14 +17,28 @@ const rawWeather = {};
 let translatedWeather = [];
 
 let currentHour = -1;
-let keyCounter = 0;
+// let keyCounter = 0;
 
 const nianticFetchingHours = [2, 17];
 const extraFetchingHours = [3, 4, 5, 6, 7];
 const fetchingHours = nianticFetchingHours.concat(extraFetchingHours);
 
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: true
+});
+
 function fetchWeather(locationId) {
   try {
+    let keyCounter;
+    client.connect();
+    client.query("DROP TABLE IF EXISTS current_hour;", (err, res) => {
+      if (err) throw err;
+      console.log('key counter: ' + res.rows);
+      keyCounter = res.rows[0].counter;
+      client.end();
+    });
+
     let url = BASE_URL + locationId + '?apikey=' + apikeys[keyCounter] + '&details=true';
     keyCounter = (keyCounter + 1) % apikeys.length;
     let xhttp = new XMLHttpRequest();
@@ -66,6 +82,14 @@ function translateWeather(data) {
   }
 }
 
+function reduceData(data) {
+  return {
+    date_time: data.DateTime,
+    wind_speed: data.Wind.Speed.Value,
+    icon_phrase: data.IconPhrase
+  }
+}
+
 function translateRawData(data) {
   return data.map(d => {
     return d !== null ? translateWeather(d) : null;
@@ -76,7 +100,7 @@ function logMessage(hour, message) {
   return (hour < 10 ? ' ' : '') + hour + ':00 : ' + message;
 }
 
-var recordWeather = function() {
+var recordWeather = function () {
   let date = new Date();
   let offset = date.getTimezoneOffset() / 60;
   let hour = (date.getHours() + offset + 7) % 24;
@@ -94,6 +118,7 @@ var recordWeather = function() {
           currentHour = -1;
           continue;
         }
+        let reducedData = newWeather.map(reduceData);
 
         if (nianticFetchingHours.includes(hour)) {
           for (let i = 0; i < currentData.length; i++) {
