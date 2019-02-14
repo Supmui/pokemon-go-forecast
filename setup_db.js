@@ -8,7 +8,7 @@ const client = new Client({
 
 client.connect();
 
-client.query("CREATE TABLE previous_hour (hour INTEGER);", (err, res) => {
+client.query("DROP TABLE IF EXISTS previous_hour; CREATE TABLE previous_hour (hour INTEGER);", (err, res) => {
   if (err) throw err;
   console.log(res.rows);
   client.end();
