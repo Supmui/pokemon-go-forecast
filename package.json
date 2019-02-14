@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "site": "python -m SimpleHTTPServer",
     "clear": "rm -f ./raw_weather/* && rm -f ./translated_weather/*",
-    "start": "node forecast.js"
+    "start": "node setup_db.js"
   },
   "author": "Chanwut Kittivorawong",
   "license": "MIT",
