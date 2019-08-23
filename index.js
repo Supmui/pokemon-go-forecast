@@ -1,4 +1,4 @@
-const ngrokKey = '81c4242a';
+const ngrokKey = '8l4242a';
 const emojiMap = {
   Windy: '🌪',
   'Partly Cloudy': '⛅️',
