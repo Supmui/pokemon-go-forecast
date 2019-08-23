@@ -83,7 +83,7 @@ const spec = data => ({
 const render = () => {
   let xhttp = new XMLHttpRequest();
   let jsonText;
-  xhttp.open('GET', 'https://' + ngrokKey + '.ngrok.io/weather.php', false);
+  xhttp.open('GET', 'https://' + ngrokKey + '.ngrok.io/', false);
   xhttp.onreadystatechange = () => {
     if (xhttp.readyState === 4)
       if (xhttp.status === 200 || xhttp.status === 0) jsonText = xhttp.responseText;
